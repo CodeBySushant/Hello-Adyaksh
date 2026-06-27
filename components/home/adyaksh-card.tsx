@@ -36,12 +36,12 @@ export function AdyakshCard() {
 
           <div className="mt-4 space-y-2">
             <a className="text-sm md:text-base font-semibold text-[#003893] hover:underline block">
-              मेयरको सन्देश
+              वडा अध्यक्षको सन्देश
             </a>
           </div>
 
           <blockquote className="mt-4 pl-4 border-l-4 border-[#003893]/40 text-sm md:text-base italic text-gray-700 leading-snug">
-            "म तिलाठी कोइलाडी गाउँपालिकाको अध्यक्ष (मेयर)को रूपमा सेवा गर्न
+            "म तिलाठी कोइलाडी गाउँपालिकाको अध्यक्ष (वडा अध्यक्ष)को रूपमा सेवा गर्न
             पाउँदा गर्व महसुस गर्दछु। मेरो उद्देश्य पारदर्शी शासन सुनिश्चित
             गर्नु, दिगो विकासलाई प्रवर्द्धन गर्नु र प्रत्येक नागरिकको जीवनस्तर
             सुधार गर्नु हो। म जनतासँग नजिकबाट सहकार्य गर्दै उनीहरूको समस्या
