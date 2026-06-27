@@ -1,5 +1,5 @@
-CREATE DATABASE hellomayor;
-USE hellomayor;
+CREATE DATABASE helloadyaksh;
+USE helloadyaksh;
 
 -- ========================
 -- TABLES
