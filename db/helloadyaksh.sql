@@ -153,7 +153,7 @@ CREATE TABLE contact_messages (
 );
 
 -- =============================================
--- Performance indexes for hellomayor database
+-- Performance indexes for helloadyaksh database
 -- Run this once in your MySQL client
 -- =============================================
 

@@ -1,8 +1,8 @@
-# HelloMayor 🇳🇵
+# HelloAdyaksh 🇳🇵
 
 A modern municipality and ward management portal built with **Next.js 16**, **TypeScript**, **MySQL**, and **Tailwind CSS**.
 
-HelloMayor is a full-stack civic administration platform designed for Nepal municipalities and ward offices to manage notices, complaints, reports, development works, blogs, gallery updates, and citizen communication through a clean public portal and powerful admin dashboard.
+HelloAdyaksh is a full-stack civic administration platform designed for Nepal municipalities and ward offices to manage notices, complaints, reports, development works, blogs, gallery updates, and citizen communication through a clean public portal and powerful admin dashboard.
 
 ---
 
@@ -77,7 +77,7 @@ HelloMayor is a full-stack civic administration platform designed for Nepal muni
 # 📂 Project Structure
 
 ```bash
-codebysushant-hellomayor/
+codebysushant-hello-adyaksh/
 ├── app/
 │   ├── admin/          # Admin dashboard pages
 │   ├── api/            # Backend API routes
@@ -121,8 +121,8 @@ codebysushant-hellomayor/
 ## 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/CodeBySushant/HelloMayor.git
-cd HelloMayor
+git clone https://github.com/CodeBySushant/Hello-Adyaskh.git
+cd HelloAdyaksh
 ```
 
 ---
@@ -143,7 +143,7 @@ Create a `.env.local` file in the root directory:
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=yourpassword
-DB_NAME=hellomayor
+DB_NAME=helloadyaksh
 
 JWT_SECRET=your_secret_key
 
@@ -320,7 +320,7 @@ MANIT Bhopal
 
 ## GitHub Repository
 
-[https://github.com/CodeBySushant/HelloMayor](https://github.com/CodeBySushant/HelloMayor)
+[https://github.com/CodeBySushant/Hello-Adyaksh](https://github.com/CodeBySushant/Hello-Adyaksh)
 
 ## GitHub Profile
 
@@ -342,4 +342,4 @@ If you found this project useful, consider giving it a ⭐ on GitHub.
 
 # 🇳🇵 Built for Digital Governance
 
-HelloMayor aims to modernize local governance systems by providing transparent, accessible, and user-friendly digital infrastructure for municipalities and ward offices.
+HelloAdyaksh aims to modernize local governance systems by providing transparent, accessible, and user-friendly digital infrastructure for municipalities and ward offices.

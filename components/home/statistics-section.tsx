@@ -12,7 +12,7 @@ import {
   TrendingUp,
   Building,
 } from "lucide-react";
-import { MayorCard } from "@/components/home/mayor-card";
+import { AdyakshCard } from "@/components/home/adyaksh-card";
 
 function AnimatedCounter({
   value,
@@ -133,7 +133,7 @@ export function StatisticsSection() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
-        <MayorCard />
+        <AdyakshCard />
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

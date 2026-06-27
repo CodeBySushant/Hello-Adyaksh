@@ -6,7 +6,7 @@ const encoder = new TextEncoder();
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 function getSecret(): string {
-  return process.env.ADMIN_SECRET || "hello-mayor-INSECURE-default-change-me";
+  return process.env.ADMIN_SECRET || "hello-adyaksh-INSECURE-default-change-me";
 }
 
 function bufToHex(buf: ArrayBuffer): string {

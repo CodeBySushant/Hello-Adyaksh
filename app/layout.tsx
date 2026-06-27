@@ -10,7 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Hello Mayor Portal',
+  title: 'Hello Adyaksh Portal',
   description: 'Transparent Governance, Empowered Citizens - Ward Administration Portal of Nepal Municipality',
   generator: 'v0.app',
   keywords: ['ward', 'adyaksh', 'nepal', 'municipality', 'government', 'portal', 'civic'],

@@ -18,7 +18,7 @@ export function Footer() {
                 <span className="text-lg font-bold text-[#DC143C]">W</span>
               </div>
               <div>
-                <h3 className="font-semibold">Hello Mayor</h3>
+                <h3 className="font-semibold">Hello Adyaksh</h3>
                 <p className="text-xs text-white/60">Portal</p>
               </div>
             </div>
@@ -113,7 +113,7 @@ export function Footer() {
 
         <div className="mt-8 pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-white/60">
-            © {new Date().getFullYear()} Hello Mayor Portal.{" "}
+            © {new Date().getFullYear()} Hello Adyaksh Portal.{" "}
             {t("allRightsReserved")}
           </p>
           <div className="flex items-center gap-1 text-sm text-white/60">

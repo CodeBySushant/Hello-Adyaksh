@@ -51,7 +51,7 @@ export default function LoginPage() {
         </button>
 
         <div className={styles.footer}>
-          HelloMayor • Nepal Government Portal
+          HelloAdyaksh • Nepal Government Portal
         </div>
       </div>
     </div>

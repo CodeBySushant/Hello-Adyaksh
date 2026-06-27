@@ -1,9 +1,9 @@
 /**
- * HelloMayor application logger.
+ * HelloAdyaksh application logger.
  *
  * What it does
  *  - Writes a single line per event to a daily log file:
- *        logs/hellomayor-YYYY-MM-DD.log
+ *        logs/helloadyaksh-YYYY-MM-DD.log
  *  - Captures THREE kinds of things so the log "covers everything":
  *        1. Errors        -> logError()  (every API catch block funnels here)
  *        2. Data changes  -> logAudit() / logDbWrite()  (create/update/delete,
@@ -57,7 +57,7 @@ function timeStamp(d = new Date()): string {
 }
 
 function currentLogFile(): string {
-  return path.join(LOG_DIR, `hellomayor-${dayStamp()}.log`);
+  return path.join(LOG_DIR, `helloadyaksh-${dayStamp()}.log`);
 }
 
 /** Make any value safe + compact for a single JSON line. */
@@ -165,7 +165,7 @@ export function logDbWrite(
 
 // ── Retention: keep 7 days, auto-erase the rest ─────────────────────────────
 
-const FILE_RE = /^hellomayor-(\d{4})-(\d{2})-(\d{2})\.log$/;
+const FILE_RE = /^helloadyaksh-(\d{4})-(\d{2})-(\d{2})\.log$/;
 
 /** Delete day-files older than RETENTION_DAYS. Safe + best-effort. */
 export function pruneOldLogs(): void {

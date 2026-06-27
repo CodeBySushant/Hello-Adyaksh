@@ -58,7 +58,7 @@ export function Header() {
             </motion.div>
             <div className="hidden sm:block">
               <h1 className="text-base font-bold bg-gradient-to-r from-[#DC143C] to-[#003893] bg-clip-text text-transparent">
-                Hello Mayor
+                Hello Adyaksh
               </h1>
               <p className="text-xs text-[#003893]/70 font-medium">
                 {language === "en" ? "Portal" : "पोर्टल"}

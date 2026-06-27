@@ -3,7 +3,7 @@
 import React from "react";
 import Image from "next/image";
 
-export function MayorCard() {
+export function AdyakshCard() {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#003893]/10 mb-16 overflow-hidden">
       <div className="flex flex-row items-stretch h-[400px]">
@@ -13,7 +13,7 @@ export function MayorCard() {
             {/* Image */}
             <Image
               src="/wardadyakshya.jpg"
-              alt="Mayor"
+              alt="Adyaksh"
               fill
               sizes="(max-width: 768px) 28vw, 320px"
               className="object-cover"
