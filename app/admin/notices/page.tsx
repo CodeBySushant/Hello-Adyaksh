@@ -25,6 +25,9 @@ import {
   Search,
   Calendar,
   AlertCircle,
+  Upload,
+  FileText,
+  X,
 } from "lucide-react";
 import useSWR, { mutate } from "swr";
 
@@ -36,6 +39,7 @@ interface Notice {
   content_np: string | null;
   category: string | null;
   is_important: boolean;
+  attachment_url: string | null;
   publish_date: string;
   created_at: string;
 }
@@ -47,6 +51,8 @@ export default function AdminNoticesPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingNotice, setEditingNotice] = useState<Notice | null>(null);
+  const [attachPdf, setAttachPdf] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     title_en: "",
     title_np: "",
@@ -54,6 +60,7 @@ export default function AdminNoticesPage() {
     content_np: "",
     category: "announcement",
     is_important: false,
+    attachment_url: "",
   });
 
   const { data, isLoading } = useSWR<{ success: boolean; data: Notice[] }>(
@@ -72,12 +79,18 @@ export default function AdminNoticesPage() {
     setIsSubmitting(true);
 
     try {
+      // When the "Attach PDF" toggle is off, send an empty string so the
+      // attachment is cleared (and no download button shows on the public side).
+      const payload = {
+        ...formData,
+        attachment_url: attachPdf ? formData.attachment_url : "",
+        ...(editingNotice ? { id: editingNotice.id } : {}),
+      };
+
       const res = await fetch("/api/notices", {
         method: editingNotice ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          editingNotice ? { ...formData, id: editingNotice.id } : formData,
-        ),
+        body: JSON.stringify(payload),
       });
 
       const result = await res.json();
@@ -85,6 +98,7 @@ export default function AdminNoticesPage() {
       if (result.success) {
         setIsAddDialogOpen(false);
         setEditingNotice(null);
+        setAttachPdf(false);
         setFormData({
           title_en: "",
           title_np: "",
@@ -92,6 +106,7 @@ export default function AdminNoticesPage() {
           content_np: "",
           category: "announcement",
           is_important: false,
+          attachment_url: "",
         });
         mutate("/api/notices");
       }
@@ -104,6 +119,7 @@ export default function AdminNoticesPage() {
 
   const handleEdit = (notice: Notice) => {
     setEditingNotice(notice);
+    setAttachPdf(!!notice.attachment_url);
     setFormData({
       title_en: notice.title_en,
       title_np: notice.title_np || "",
@@ -111,8 +127,41 @@ export default function AdminNoticesPage() {
       content_np: notice.content_np || "",
       category: notice.category || "announcement",
       is_important: notice.is_important,
+      attachment_url: notice.attachment_url || "",
     });
     setIsAddDialogOpen(true);
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      alert("Only PDF files are allowed.");
+      e.target.value = "";
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+
+      const res = await fetch("/api/notices/upload", { method: "POST", body });
+      const result = await res.json();
+
+      if (result.success) {
+        setFormData((prev) => ({ ...prev, attachment_url: result.url }));
+      } else {
+        alert(result.error || "Upload failed.");
+      }
+    } catch (error) {
+      console.error("PDF upload failed:", error);
+      alert("Upload failed. Please try again.");
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -137,7 +186,25 @@ export default function AdminNoticesPage() {
             Create and manage ward notices and announcements
           </p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <Dialog
+          open={isAddDialogOpen}
+          onOpenChange={(open) => {
+            setIsAddDialogOpen(open);
+            if (!open) {
+              setEditingNotice(null);
+              setAttachPdf(false);
+              setFormData({
+                title_en: "",
+                title_np: "",
+                content_en: "",
+                content_np: "",
+                category: "announcement",
+                is_important: false,
+                attachment_url: "",
+              });
+            }
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-[#DC143C] to-[#003893] text-white rounded-full">
               <Plus className="h-4 w-4 mr-2" />
@@ -222,14 +289,88 @@ export default function AdminNoticesPage() {
                   />
                 </div>
               </div>
+              {/* Attach PDF — toggle first; the uploader only appears when on */}
+              <div className="rounded-lg border border-input p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Attach PDF</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Turn on only if this notice needs a downloadable PDF
+                    </p>
+                  </div>
+                  <Switch
+                    checked={attachPdf}
+                    onCheckedChange={(checked) => {
+                      setAttachPdf(checked);
+                      // Clearing the url when turned off removes the public
+                      // download button on save.
+                      if (!checked) {
+                        setFormData({ ...formData, attachment_url: "" });
+                      }
+                    }}
+                  />
+                </div>
+
+                {attachPdf &&
+                  (formData.attachment_url ? (
+                    <div className="flex items-center justify-between gap-2 rounded-md bg-muted/50 px-3 py-2">
+                      <a
+                        href={formData.attachment_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-[#003893] hover:underline truncate"
+                      >
+                        <FileText className="h-4 w-4 shrink-0" />
+                        <span className="truncate">
+                          {formData.attachment_url.split("/").pop()}
+                        </span>
+                      </a>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-500 hover:text-red-600 shrink-0"
+                        onClick={() =>
+                          setFormData({ ...formData, attachment_url: "" })
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        id="notice-pdf"
+                        type="file"
+                        accept="application/pdf"
+                        onChange={handlePdfUpload}
+                        className="hidden"
+                      />
+                      <Label
+                        htmlFor="notice-pdf"
+                        className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-input px-3 py-3 text-sm text-muted-foreground hover:border-[#003893] hover:text-[#003893] transition-colors"
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4" />
+                            Upload PDF (max 15MB)
+                          </>
+                        )}
+                      </Label>
+                    </div>
+                  ))}
+              </div>
+
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    setIsAddDialogOpen(false);
-                    setEditingNotice(null);
-                  }}
+                  onClick={() => setIsAddDialogOpen(false)}
                 >
                   Cancel
                 </Button>
@@ -291,6 +432,15 @@ export default function AdminNoticesPage() {
                         <Badge variant="outline" className="capitalize">
                           {notice.category}
                         </Badge>
+                        {notice.attachment_url && (
+                          <Badge
+                            variant="outline"
+                            className="border-[#003893]/30 text-[#003893]"
+                          >
+                            <FileText className="h-3 w-3 mr-1" />
+                            PDF
+                          </Badge>
+                        )}
                       </div>
                       <h3 className="font-semibold text-[#003893] mb-1">
                         {notice.title_en}

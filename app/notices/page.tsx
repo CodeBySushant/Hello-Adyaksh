@@ -34,6 +34,7 @@ interface Notice {
   category: string
   is_important: boolean
   publish_date: string
+  attachment_url?: string | null
 }
 
 const categoryConfig: Record<string, { label: string; labelNe: string; color: string }> = {
@@ -239,10 +240,19 @@ export default function NoticesPage() {
                 </p>
               </div>
               <div className="flex gap-3 pt-4 border-t">
-                <Button className="gradient-nepal">
-                  <Download className="h-4 w-4 mr-2" />
-                  {language === "en" ? "Download PDF" : "PDF डाउनलोड"}
-                </Button>
+                {selectedNotice.attachment_url && (
+                  <Button asChild className="gradient-nepal">
+                    <a
+                      href={selectedNotice.attachment_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      {language === "en" ? "Download PDF" : "PDF डाउनलोड"}
+                    </a>
+                  </Button>
+                )}
                 <Button variant="outline" onClick={() => setSelectedNotice(null)}>
                   {language === "en" ? "Close" : "बन्द"}
                 </Button>
