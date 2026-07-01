@@ -7,19 +7,21 @@ import { useLanguage } from "@/lib/language-context";
 import {
   Users,
   Home,
-  GraduationCap,
-  Route,
-  TrendingUp,
+  LayoutGrid,
+  Map as MapIcon,
   Building,
+  BookOpen,
 } from "lucide-react";
 import { AdyakshCard } from "@/components/home/adyaksh-card";
 
 function AnimatedCounter({
   value,
   duration = 2,
+  decimals = 0,
 }: {
   value: number;
   duration?: number;
+  decimals?: number;
 }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -35,7 +37,9 @@ function AnimatedCounter({
       const progress = (currentTime - startTime) / (duration * 1000);
 
       if (progress < 1) {
-        setCount(Math.floor(value * progress));
+        // Keep decimals during the count-up so fractional values (area,
+        // literacy %) animate smoothly instead of snapping at the end.
+        setCount(value * progress);
         rafId = requestAnimationFrame(animate);
       } else {
         setCount(value);
@@ -46,7 +50,14 @@ function AnimatedCounter({
     return () => cancelAnimationFrame(rafId);
   }, [value, duration, isInView]);
 
-  return <span ref={ref}>{count.toLocaleString()}</span>;
+  return (
+    <span ref={ref}>
+      {count.toLocaleString(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      })}
+    </span>
+  );
 }
 
 
@@ -76,48 +87,49 @@ export function StatisticsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
+  // Real ward figures.
   const stats = [
     {
       icon: Users,
       label: language === "en" ? "Population" : "जनसंख्या",
-      value: 25850,
+      value: 25297,
       suffix: "",
-      trend: "+2.3%",
+      decimals: 0,
     },
     {
       icon: Home,
       label: language === "en" ? "Households" : "घरधुरी",
-      value: 5420,
+      value: 4498,
       suffix: "",
-      trend: "+1.8%",
+      decimals: 0,
     },
     {
-      icon: GraduationCap,
-      label: language === "en" ? "Schools" : "विद्यालय",
-      value: 12,
+      icon: LayoutGrid,
+      label: language === "en" ? "Wards" : "वडा",
+      value: 8,
       suffix: "",
-      trend: "+1",
+      decimals: 0,
     },
     {
-      icon: Route,
-      label: language === "en" ? "Roads" : "सडक",
-      value: 45,
-      suffix: " km",
-      trend: "+5km",
+      icon: MapIcon,
+      label: language === "en" ? "Area" : "क्षेत्रफल",
+      value: 33.10,
+      suffix: " km²",
+      decimals: 2,
     },
     {
       icon: Building,
       label: language === "en" ? "Health Centers" : "स्वास्थ्य केन्द्र",
-      value: 3,
+      value: 8,
       suffix: "",
-      trend: "+1",
+      decimals: 0,
     },
     {
-      icon: TrendingUp,
+      icon: BookOpen,
       label: language === "en" ? "Literacy Rate" : "साक्षरता दर",
-      value: 94,
+      value: 56.4,
       suffix: "%",
-      trend: "+3%",
+      decimals: 1,
     },
   ];
 
@@ -174,13 +186,10 @@ export function StatisticsSection() {
                 <stat.icon className="h-6 w-6" />
               </div>
               <div className="text-2xl lg:text-3xl font-bold text-[#003893] mb-1">
-                <AnimatedCounter value={stat.value} />
+                <AnimatedCounter value={stat.value} decimals={stat.decimals} />
                 {stat.suffix}
               </div>
-              <p className="text-xs text-muted-foreground mb-2">{stat.label}</p>
-              <span className="inline-block text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                {stat.trend}
-              </span>
+              <p className="text-xs text-muted-foreground">{stat.label}</p>
             </motion.div>
           ))}
         </motion.div>

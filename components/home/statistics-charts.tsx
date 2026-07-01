@@ -17,36 +17,41 @@ import {
   Area,
 } from "recharts";
 
-// NOTE: This is static SAMPLE data, not fetched from the database. Wire these
-// to a real endpoint (e.g. /api/statistics) when live ward data is available.
-// Data
+// Real ward figures.
+//   - Gender is stored as head-counts derived from the ward population
+//     (25,297) using the reported split (Male 48.3% / Female 51.5% /
+//     Other 0.2%); the pie labels still print the exact percentages.
+//   - Age, Education and Budget are the reported values as-is.
+// NOTE: `monthlyProgressData` below (Development Progress Trend) is still
+// placeholder sample data — no real monthly project figures were provided.
 const genderData = [
-  { name: "Male", value: 12500, fill: "#003893" },
-  { name: "Female", value: 13200, fill: "#DC143C" },
-  { name: "Other", value: 150, fill: "#6B7280" },
+  { name: "Male", value: 12218, fill: "#003893" },
+  { name: "Female", value: 13028, fill: "#DC143C" },
+  { name: "Other", value: 51, fill: "#6B7280" },
 ];
 
 const ageDistributionData = [
-  { age: "0-14", male: 2100, female: 2000 },
-  { age: "15-24", male: 2800, female: 2900 },
-  { age: "25-44", male: 3500, female: 3800 },
-  { age: "45-64", male: 2500, female: 2700 },
-  { age: "65+", male: 1600, female: 1800 },
+  { age: "0-14", male: 3300, female: 3150 },
+  { age: "15-24", male: 2550, female: 2480 },
+  { age: "25-44", male: 3400, female: 3520 },
+  { age: "45-64", male: 1850, female: 1900 },
+  { age: "65+", male: 1050, female: 1097 },
 ];
 
 const educationData = [
-  { level: "Primary", count: 8500, percentage: 33 },
-  { level: "Secondary", count: 7200, percentage: 28 },
-  { level: "Higher Sec.", count: 5400, percentage: 21 },
-  { level: "Bachelor+", count: 3200, percentage: 12 },
-  { level: "Illiterate", count: 1550, percentage: 6 },
+  { level: "Primary", count: 6200 },
+  { level: "Secondary", count: 4700 },
+  { level: "Higher Sec.", count: 2100 },
+  { level: "Bachelor+", count: 1257 },
+  { level: "Illiterate", count: 11040 },
 ];
 
 const budgetData = [
-  { name: "Infrastructure", allocated: 4500000, spent: 3200000 },
-  { name: "Education", allocated: 2000000, spent: 1800000 },
-  { name: "Health", allocated: 1500000, spent: 1200000 },
-  { name: "Social", allocated: 1000000, spent: 800000 },
+  { name: "Infrastructure", allocated: 240000000, spent: 225000000 },
+  { name: "Education", allocated: 110000000, spent: 98000000 },
+  { name: "Health", allocated: 85000000, spent: 76000000 },
+  { name: "Agriculture", allocated: 65000000, spent: 59000000 },
+  { name: "Social Dev.", allocated: 120000000, spent: 117000000 },
 ];
 
 const monthlyProgressData = [
@@ -124,7 +129,7 @@ export function StatisticsCharts({ language, isInView }: StatisticsChartsProps) 
                     paddingAngle={3}
                     dataKey="value"
                     label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
+                      `${name} ${(percent * 100).toFixed(1)}%`
                     }
                     labelLine={{ stroke: "#003893", strokeWidth: 1 }}
                   >
@@ -266,7 +271,7 @@ export function StatisticsCharts({ language, isInView }: StatisticsChartsProps) 
             <p className="text-sm text-muted-foreground mb-4">
               {language === "en"
                 ? "Financial transparency (NPR in millions)"
-                : "वित्तीय पारदर्शिता (लाखमा)"}
+                : "वित्तीय पारदर्शिता (एनपीआर मिलियनमा)"}
             </p>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -283,7 +288,7 @@ export function StatisticsCharts({ language, isInView }: StatisticsChartsProps) 
                     tickLine={false}
                     axisLine={{ stroke: "#E5E7EB" }}
                     tickFormatter={(value) =>
-                      `${(value / 1000000).toFixed(1)}M`
+                      `${(value / 1000000).toFixed(0)}M`
                     }
                   />
                   <Tooltip
