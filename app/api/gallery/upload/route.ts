@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { requireAdmin } from "@/lib/auth";
 import { logError, logAudit } from "@/lib/logger";
+import { uploadDirFor, uploadUrlFor } from "@/lib/uploads";
 
 export async function POST(request: NextRequest) {
   const authError = await requireAdmin();
@@ -49,15 +50,14 @@ export async function POST(request: NextRequest) {
     const ext = file.name.split(".").pop()?.toLowerCase() || "bin";
     const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-    // Save to public/uploads/gallery (served as static files by Next.js)
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "gallery");
+    const uploadDir = uploadDirFor("gallery");
     await mkdir(uploadDir, { recursive: true });
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     await writeFile(path.join(uploadDir, uniqueName), buffer);
 
-    const publicUrl = `/uploads/gallery/${uniqueName}`;
+    const publicUrl = uploadUrlFor("gallery", uniqueName);
     const mediaType = file.type.startsWith("video/") ? "video" : "image";
 
     logAudit("gallery.upload", {
