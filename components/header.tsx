@@ -18,7 +18,6 @@ import {
   Image as ImageIcon,
   BarChart3,
   Hammer,
-  Settings,
 } from "lucide-react";
 
 export function Header() {
@@ -125,18 +124,6 @@ export function Header() {
               </button>
             </div>
 
-            {/* Admin Link */}
-            <Link href="/admin">
-              <Button
-                variant="outline"
-                size="sm"
-                className="hidden sm:flex items-center gap-1.5 border-[#003893]/20 hover:border-[#DC143C] hover:bg-[#DC143C]/5 text-[#003893] hover:text-[#DC143C] transition-all"
-              >
-                <Settings className="h-4 w-4" />
-                <span className="hidden md:inline">{t("admin")}</span>
-              </Button>
-            </Link>
-
             {/* Mobile Menu Toggle */}
             <Button
               variant="ghost"
@@ -197,20 +184,6 @@ export function Header() {
                   </Link>
                 </motion.div>
               ))}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: navItems.length * 0.05 }}
-              >
-                <Link
-                  href="/admin"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white transition-colors rounded-xl bg-gradient-to-r from-[#DC143C] to-[#003893] mt-2"
-                >
-                  <Settings className="h-5 w-5" />
-                  {t("admin")}
-                </Link>
-              </motion.div>
             </nav>
           </motion.div>
         )}
