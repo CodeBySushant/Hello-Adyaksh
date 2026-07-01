@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { useLanguage } from "@/lib/language-context"
 import {
@@ -8,8 +8,6 @@ import {
   Mail,
   Clock,
   CheckCircle2,
-  TrendingUp,
-  TrendingDown,
   Loader2,
 } from "lucide-react"
 import { safeFormatDate } from "@/lib/date"
@@ -63,15 +61,14 @@ interface Message {
   created_at: string
 }
 
-const weeklyData = [
-  { day: "Mon", complaints: 4, messages: 6 },
-  { day: "Tue", complaints: 3, messages: 4 },
-  { day: "Wed", complaints: 5, messages: 8 },
-  { day: "Thu", complaints: 2, messages: 5 },
-  { day: "Fri", complaints: 6, messages: 3 },
-  { day: "Sat", complaints: 1, messages: 2 },
-  { day: "Sun", complaints: 3, messages: 4 },
-]
+/** Local-time YYYY-MM-DD key so day-bucketing doesn't drift across timezones. */
+function localDayKey(value: string | Date): string {
+  const d = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(d.getTime())) return ""
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}`
+}
 
 export default function AdminDashboard() {
   const { language } = useLanguage()
@@ -99,11 +96,13 @@ export default function AdminDashboard() {
       if (statsData.success) {
         setStats(statsData.data)
       }
+      // Keep the FULL lists in state: the recent tables slice to 5 at render,
+      // and the weekly chart buckets the whole set by day.
       if (complaintsData.success) {
-        setComplaints(complaintsData.data.slice(0, 5))
+        setComplaints(Array.isArray(complaintsData.data) ? complaintsData.data : [])
       }
       if (messagesData.success) {
-        setMessages(messagesData.data.slice(0, 5))
+        setMessages(Array.isArray(messagesData.data) ? messagesData.data : [])
       }
     } catch (error) {
       console.error("Failed to fetch data:", error)
@@ -111,6 +110,51 @@ export default function AdminDashboard() {
       setLoading(false)
     }
   }
+
+  // Real weekly activity: last 7 days (oldest → newest), counting complaints and
+  // messages by their created_at date. No data ⇒ all zeros (a flat chart),
+  // never fabricated numbers.
+  const weeklyData = useMemo(() => {
+    const days: {
+      day: string
+      key: string
+      complaints: number
+      messages: number
+    }[] = []
+
+    const today = new Date()
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today)
+      d.setDate(today.getDate() - i)
+      days.push({
+        day: d.toLocaleDateString("en-US", { weekday: "short" }),
+        key: localDayKey(d),
+        complaints: 0,
+        messages: 0,
+      })
+    }
+
+    const bucket = (
+      items: { created_at: string }[],
+      field: "complaints" | "messages",
+    ) => {
+      for (const item of items) {
+        const key = localDayKey(item?.created_at)
+        if (!key) continue
+        const slot = days.find((x) => x.key === key)
+        if (slot) slot[field] += 1
+      }
+    }
+
+    bucket(complaints, "complaints")
+    bucket(messages, "messages")
+
+    return days.map(({ day, complaints, messages }) => ({
+      day,
+      complaints,
+      messages,
+    }))
+  }, [complaints, messages])
 
   if (loading) {
     return (
@@ -126,32 +170,24 @@ export default function AdminDashboard() {
       value: stats?.complaints?.total || 0,
       icon: MessageSquareWarning,
       color: "from-[#DC143C] to-[#DC143C]/80",
-      trend: "+12%",
-      trendUp: true,
     },
     {
       label: language === "en" ? "Pending" : "विचाराधीन",
       value: stats?.complaints?.pending || 0,
       icon: Clock,
       color: "from-yellow-500 to-yellow-400",
-      trend: "-5%",
-      trendUp: false,
     },
     {
       label: language === "en" ? "Resolved" : "समाधान भयो",
       value: stats?.complaints?.resolved || 0,
       icon: CheckCircle2,
       color: "from-green-500 to-green-400",
-      trend: "+18%",
-      trendUp: true,
     },
     {
       label: language === "en" ? "Messages" : "सन्देश",
       value: stats?.messages?.total || 0,
       icon: Mail,
       color: "from-[#003893] to-[#003893]/80",
-      trend: "+8%",
-      trendUp: true,
       badge: stats?.messages?.unread && stats.messages.unread > 0 ? stats.messages.unread : undefined,
     },
   ]
@@ -205,10 +241,6 @@ export default function AdminDashboard() {
                 )}
               </div>
             </div>
-            <div className={`flex items-center gap-1 mt-3 text-xs ${stat.trendUp ? "text-green-600" : "text-red-600"}`}>
-              {stat.trendUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-              <span>{stat.trend} {language === "en" ? "from last week" : "गत हप्ताबाट"}</span>
-            </div>
           </motion.div>
         ))}
       </div>
@@ -240,7 +272,7 @@ export default function AdminDashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="day" tick={{ fontSize: 12 }} tickLine={false} axisLine={{ stroke: "#E5E7EB" }} />
-                <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={{ stroke: "#E5E7EB" }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} tickLine={false} axisLine={{ stroke: "#E5E7EB" }} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "rgba(255, 255, 255, 0.95)",
@@ -295,7 +327,7 @@ export default function AdminDashboard() {
               <BarChart data={statusBarData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                 <XAxis dataKey="status" tick={{ fontSize: 12 }} tickLine={false} axisLine={{ stroke: "#E5E7EB" }} />
-                <YAxis tick={{ fontSize: 12 }} tickLine={false} axisLine={{ stroke: "#E5E7EB" }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} tickLine={false} axisLine={{ stroke: "#E5E7EB" }} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: "rgba(255, 255, 255, 0.95)",
@@ -337,7 +369,7 @@ export default function AdminDashboard() {
                 {language === "en" ? "No complaints yet" : "अहिलेसम्म कुनै गुनासो छैन"}
               </div>
             ) : (
-              complaints.map((complaint) => (
+              complaints.slice(0, 5).map((complaint) => (
                 <div key={complaint.id} className="p-4 hover:bg-muted/50 transition-colors">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
@@ -390,7 +422,7 @@ export default function AdminDashboard() {
                 {language === "en" ? "No messages yet" : "अहिलेसम्म कुनै सन्देश छैन"}
               </div>
             ) : (
-              messages.map((message) => (
+              messages.slice(0, 5).map((message) => (
                 <div key={message.id} className="p-4 hover:bg-muted/50 transition-colors">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
