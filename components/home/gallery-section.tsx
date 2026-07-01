@@ -142,6 +142,7 @@ export function GallerySection() {
                     alt={language === "ne" && item.title_np ? item.title_np : item.title_en}
                     fill
                     sizes="(max-width: 768px) 50vw, 33vw"
+                    unoptimized
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 )}
